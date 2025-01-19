@@ -1,0 +1,54 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_arith.ALL;
+use ieee.std_logic_unsigned.ALL;
+
+
+entity TRATAMIENTO_PISOS is
+    Port ( reset_n : in STD_LOGIC;
+           boton : in STD_LOGIC_VECTOR (3 downto 0);
+           clk_pisos : in STD_LOGIC;
+           aux : in STD_LOGIC;
+           motor : in STD_LOGIC_VECTOR (1 downto 0);
+           p_solicitado : out STD_LOGIC_VECTOR (2 downto 0);
+           p_actual : out STD_LOGIC_VECTOR (2 downto 0));
+end TRATAMIENTO_PISOS;
+
+architecture Behavioral of TRATAMIENTO_PISOS is
+    signal asign: std_logic_vector (2 downto 0);
+
+begin
+deseado:process(clk_pisos,reset_n,aux)
+begin
+    if(reset_n='0') then
+    p_solicitado<="001";
+    elsif(rising_edge(clk_pisos)and motor="00" and aux='1') then
+    case (boton) is
+        when "0000"=> p_solicitado<=asign;
+        when "0001"=> p_solicitado<="001";
+        when "0010"=> p_solicitado<="010";
+        when "0100"=> p_solicitado<="011";
+        when "1000"=> p_solicitado<="100";
+        when others => p_solicitado<=asign;
+        end case;
+        end if;
+end process deseado;
+
+deseadopormotor:process(motor, clk_pisos, reset_n)
+    begin
+        if(reset_n='0') then
+        asign<="001";
+        
+        elsif (rising_edge(clk_pisos)) then
+        
+            case (motor) is
+                when "01" => asign <= asign-1;
+                when "10" => asign <= asign+1;
+                when others => asign <= asign;
+            end case;
+        end if;
+end process deseadopormotor;
+
+p_actual <= asign;
+
+end Behavioral;
