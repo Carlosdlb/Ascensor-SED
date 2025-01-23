@@ -1,0 +1,66 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity tb_display is
+end tb_display;
+
+architecture tb of tb_display is
+
+    component display
+        port (reset_n     : in std_logic;
+              clk_display : in std_logic;
+              p_actual    : in std_logic_vector (2 downto 0);
+              led         : out std_logic_vector (6 downto 0));
+    end component;
+
+    signal reset_n     : std_logic;
+    signal clk_display : std_logic;
+    signal p_actual    : std_logic_vector (2 downto 0);
+    signal led         : std_logic_vector (6 downto 0);
+
+    constant TbPeriod : time := 1000 ns; -- EDIT Put right period here
+    signal TbClock : std_logic := '0';
+    signal TbSimEnded : std_logic := '0';
+
+begin
+
+    dut : display
+    port map (reset_n     => reset_n,
+              clk_display => clk_display,
+              p_actual    => p_actual,
+              led         => led);
+
+    -- Clock generation
+    TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
+
+    -- EDIT: Check that clk_display is really your main clock signal
+    clk_display <= TbClock;
+
+    stimuli : process
+    begin
+        -- EDIT Adapt initialization as needed
+        p_actual <= (others => '0');
+
+        -- Reset generation
+        -- EDIT: Check that reset_n is really your reset signal
+        reset_n <= '1';
+        wait for 100 ns;
+        reset_n <= '0';
+        wait for 100 ns;
+
+        -- EDIT Add stimuli here
+        wait for 100 * TbPeriod;
+
+        -- Stop the clock and hence terminate the simulation
+        TbSimEnded <= '1';
+        wait;
+    end process;
+
+end tb;
+
+-- Configuration block below is required by some simulators. Usually no need to edit.
+
+configuration cfg_tb_display of tb_display is
+    for tb
+    end for;
+end cfg_tb_display;
