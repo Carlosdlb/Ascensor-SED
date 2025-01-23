@@ -1,0 +1,77 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity tb_TRATAMIENTO_PISOS is
+end tb_TRATAMIENTO_PISOS;
+
+architecture tb of tb_TRATAMIENTO_PISOS is
+
+    component TRATAMIENTO_PISOS
+        port (reset_n      : in std_logic;
+              boton        : in std_logic_vector (3 downto 0);
+              clk_pisos    : in std_logic;
+              aux          : in std_logic;
+              motor        : in std_logic_vector (1 downto 0);
+              p_solicitado : out std_logic_vector (2 downto 0);
+              p_actual     : out std_logic_vector (2 downto 0));
+    end component;
+
+    signal reset_n      : std_logic;
+    signal boton        : std_logic_vector (3 downto 0);
+    signal clk_pisos    : std_logic;
+    signal aux          : std_logic;
+    signal motor        : std_logic_vector (1 downto 0);
+    signal p_solicitado : std_logic_vector (2 downto 0);
+    signal p_actual     : std_logic_vector (2 downto 0);
+
+    constant TbPeriod : time := 1000 ns; -- EDIT Put right period here
+    signal TbClock : std_logic := '0';
+    signal TbSimEnded : std_logic := '0';
+
+begin
+
+    dut : TRATAMIENTO_PISOS
+    port map (reset_n      => reset_n,
+              boton        => boton,
+              clk_pisos    => clk_pisos,
+              aux          => aux,
+              motor        => motor,
+              p_solicitado => p_solicitado,
+              p_actual     => p_actual);
+
+    -- Clock generation
+    TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
+
+    -- EDIT: Check that clk_pisos is really your main clock signal
+    clk_pisos <= TbClock;
+
+    stimuli : process
+    begin
+        -- EDIT Adapt initialization as needed
+        boton <= (others => '0');
+        aux <= '0';
+        motor <= (others => '0');
+
+        -- Reset generation
+        -- EDIT: Check that reset_n is really your reset signal
+        reset_n <= '1';
+        wait for 100 ns;
+        reset_n <= '0';
+        wait for 100 ns;
+
+        -- EDIT Add stimuli here
+        wait for 100 * TbPeriod;
+
+        -- Stop the clock and hence terminate the simulation
+        TbSimEnded <= '1';
+        wait;
+    end process;
+
+end tb;
+
+-- Configuration block below is required by some simulators. Usually no need to edit.
+
+configuration cfg_tb_TRATAMIENTO_PISOS of tb_TRATAMIENTO_PISOS is
+    for tb
+    end for;
+end cfg_tb_TRATAMIENTO_PISOS;
