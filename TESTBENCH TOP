@@ -1,0 +1,83 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity tb_TOP is
+end tb_TOP;
+
+architecture tb of tb_TOP is
+
+    component TOP
+        port (CLK            : in std_logic;
+              RESET_n        : in std_logic;
+              BOTON          : in std_logic_vector (3 downto 0);
+              aux            : inout std_logic;
+              s_PRESENCIA    : in std_logic;
+              estado_PUERTA  : in std_logic_vector (1 downto 0);
+              motor_PUERTA   : out std_logic_vector (1 downto 0);
+              motor_ASCENSOR : inout std_logic_vector (1 downto 0);
+              led            : out std_logic_vector (6 downto 0));
+    end component;
+
+    signal CLK            : std_logic;
+    signal RESET_n        : std_logic;
+    signal BOTON          : std_logic_vector (3 downto 0);
+    signal aux            : std_logic;
+    signal s_PRESENCIA    : std_logic;
+    signal estado_PUERTA  : std_logic_vector (1 downto 0);
+    signal motor_PUERTA   : std_logic_vector (1 downto 0);
+    signal motor_ASCENSOR : std_logic_vector (1 downto 0);
+    signal led            : std_logic_vector (6 downto 0);
+
+    constant TbPeriod : time := 1000 ns; -- EDIT Put right period here
+    signal TbClock : std_logic := '0';
+    signal TbSimEnded : std_logic := '0';
+
+begin
+
+    dut : TOP
+    port map (CLK            => CLK,
+              RESET_n        => RESET_n,
+              BOTON          => BOTON,
+              aux            => aux,
+              s_PRESENCIA    => s_PRESENCIA,
+              estado_PUERTA  => estado_PUERTA,
+              motor_PUERTA   => motor_PUERTA,
+              motor_ASCENSOR => motor_ASCENSOR,
+              led            => led);
+
+    -- Clock generation
+    TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
+
+    -- EDIT: Check that CLK is really your main clock signal
+    CLK <= TbClock;
+
+    stimuli : process
+    begin
+        -- EDIT Adapt initialization as needed
+        BOTON <= (others => '0');
+        s_PRESENCIA <= '0';
+        estado_PUERTA <= (others => '0');
+
+        -- Reset generation
+        -- EDIT: Check that RESET_n is really your reset signal
+        RESET_n <= '1';
+        wait for 100 ns;
+        RESET_n <= '0';
+        wait for 100 ns;
+
+        -- EDIT Add stimuli here
+        wait for 100 * TbPeriod;
+
+        -- Stop the clock and hence terminate the simulation
+        TbSimEnded <= '1';
+        wait;
+    end process;
+
+end tb;
+
+-- Configuration block below is required by some simulators. Usually no need to edit.
+
+configuration cfg_tb_TOP of tb_TOP is
+    for tb
+    end for;
+end cfg_tb_TOP;
